@@ -1,0 +1,54 @@
+<Window x:Class="TeamsJarvis.UI.MemoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Memoria de la conversación" Height="640" Width="620"
+        MinHeight="420" MinWidth="460"
+        WindowStartupLocation="CenterOwner" Background="#F4F5FA">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Accent" Color="#6264A7"/>
+        <SolidColorBrush x:Key="Muted" Color="#6A6A75"/>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock x:Name="HeaderText" Text="Memoria" FontSize="18" FontWeight="Bold" Foreground="{StaticResource Accent}"/>
+            <TextBlock Text="Ficha que Jarvis recuerda de esta conversación. Puedes editarla o reconstruirla en local (gratis)."
+                       FontSize="11.5" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="SectionsList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="8" BorderBrush="#E6E6F0" BorderThickness="1"
+                                Padding="12" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"
+                                           Foreground="{StaticResource Accent}" Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding Content, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                         TextWrapping="Wrap" AcceptsReturn="True" BorderThickness="0"
+                                         Background="Transparent" FontSize="12.5"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <DockPanel Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" Foreground="{StaticResource Muted}" FontSize="11.5"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="🔄 Reconstruir (local · gratis)" Padding="12,7" Margin="0,0,8,0"
+                        Click="OnRebuild" Background="#E6E6F0" BorderThickness="0"/>
+                <Button Content="💾 Guardar" Padding="16,7" Background="{StaticResource Accent}" Foreground="White"
+                        BorderThickness="0" FontWeight="SemiBold" Click="OnSave"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

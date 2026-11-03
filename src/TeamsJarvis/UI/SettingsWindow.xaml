@@ -1,0 +1,337 @@
+<Window x:Class="TeamsJarvis.UI.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configuración de Frida.ai" Height="720" Width="680"
+        MinHeight="480" MinWidth="520"
+        WindowStartupLocation="CenterOwner" Background="#F3F3F7">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="Accent" Color="#6264A7"/>
+        <SolidColorBrush x:Key="Muted" Color="#6A6A75"/>
+
+        <Style TargetType="TextBlock" x:Key="FieldLabel">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,10,0,2"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="Help">
+            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="6,5"/>
+            <Setter Property="BorderBrush" Value="#C9C9D6"/>
+        </Style>
+        <Style TargetType="Border" x:Key="Card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="BorderBrush" Value="#E3E3EC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="CardTitle">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="{StaticResource Accent}"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="CardSubtitle">
+            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera -->
+        <Border Grid.Row="0" Background="{StaticResource Accent}" Padding="18,14">
+            <StackPanel>
+                <TextBlock Text="Configuración" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                <TextBlock x:Name="IntroText" Foreground="#DDDDEE" FontSize="12.5" TextWrapping="Wrap"
+                           Text="Rellena estos datos para que Jarvis pueda leer tus chats y sugerirte respuestas. Cada campo lleva una explicación de qué es y para qué sirve. No necesitas saber de programación."/>
+            </StackPanel>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="12,12,12,0" Background="Transparent" BorderThickness="0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Padding" Value="14,7"/>
+                    <Setter Property="FontSize" Value="13"/>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- Pestaña: Teams -->
+            <TabItem Header="🟣 Teams">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource CardTitle}" Text="Conexión con Microsoft Teams"/>
+                        <TextBlock Style="{StaticResource CardSubtitle}"
+                                   Text="Cómo lee Jarvis tus chats (solo lectura; nunca envía nada)."/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Fuente de los mensajes"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="'Teams incrustado' lee el Teams que va dentro de la app SIN tocar el tenant (recomendado). 'Microsoft Graph' usa la API (requiere permisos del tenant)."/>
+                        <ComboBox x:Name="SourceModeBox" Padding="6,5" SelectionChanged="OnSourceModeChanged">
+                            <ComboBoxItem Content="Teams incrustado (sin tenant, recomendado)" Tag="browser"/>
+                            <ComboBoxItem Content="Microsoft Graph (API del tenant)" Tag="graph"/>
+                        </ComboBox>
+
+                        <StackPanel x:Name="BrowserHelp" Visibility="Collapsed" Margin="0,8,0,0">
+                            <Border Background="#E9F5EC" CornerRadius="6" Padding="10">
+                                <TextBlock Style="{StaticResource Help}" Foreground="#1E6B36"
+                                           Text="El Teams va incrustado en la propia app. Inicia sesión dentro como en el navegador. No necesitas Tenant/Client ID en este modo."/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel x:Name="AuthMethodPanel">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Método de inicio de sesión (solo modo Graph)"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Recomendado: reutilizar tu sesión de Azure CLI (si ya usas 'az login' no necesitas ni Tenant ID ni Client ID). Alternativa: registrar una aplicación propia."/>
+                        <ComboBox x:Name="AuthModeBox" Padding="6,5" SelectionChanged="OnAuthModeChanged">
+                            <ComboBoxItem Content="Reutilizar Azure CLI (az login) — sin Client ID" Tag="azcli"/>
+                            <ComboBoxItem Content="Registro de aplicación propio (Tenant ID + Client ID)" Tag="app"/>
+                        </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel x:Name="AzCliHelp" Margin="0,8,0,0">
+                            <Border Background="#E9F5EC" CornerRadius="6" Padding="10">
+                                <TextBlock Style="{StaticResource Help}" Foreground="#1E6B36"
+                                           Text="✔ No tienes que rellenar nada más aquí. Asegúrate de haber hecho 'az login'. Si tu organización no da permisos de Teams al Azure CLI, usa el registro propio o el modo Teams incrustado."/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel x:Name="AppFields">
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="ID de organización (Tenant ID)"/>
+                            <TextBlock Style="{StaticResource Help}"
+                                       Text="Identifica a tu empresa en Microsoft. En Entra ID aparece como 'Directory (tenant) ID'."/>
+                            <TextBox x:Name="TenantIdBox"/>
+
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="ID de la aplicación (Client ID)"/>
+                            <TextBlock Style="{StaticResource Help}"
+                                       Text="Créala una vez en Entra ID (app de escritorio, redirect http://localhost, permisos de solo lectura: Chat.Read, User.Read, Sites.Read.All, Files.Read.All) y copia aquí su 'Application (client) ID'."/>
+                            <TextBox x:Name="ClientIdBox"/>
+
+                            <TextBlock Style="{StaticResource Help}" Margin="0,8,0,0"
+                                       Text="ℹ La primera vez se abrirá el navegador para iniciar sesión. Solo permisos de LECTURA."/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Pestaña: IA & coste -->
+            <TabItem Header="🧠 IA &amp; coste">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource CardTitle}" Text="Inteligencia artificial"/>
+                        <TextBlock Style="{StaticResource CardSubtitle}"
+                                   Text="El 'cerebro' que lee la conversación y redacta la sugerencia."/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Proveedor (redacción)"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Qué IA redacta las respuestas. Claude (Anthropic) es el recomendado."/>
+                        <ComboBox x:Name="ProviderBox" Padding="6,5" SelectionChanged="OnProviderChanged">
+                            <ComboBoxItem Content="Claude (Anthropic)" Tag="claude"/>
+                            <ComboBoxItem Content="OpenAI" Tag="openai"/>
+                            <ComboBoxItem Content="Gemini (Google)" Tag="gemini"/>
+                            <ComboBoxItem Content="Ollama (local, gratis)" Tag="ollama"/>
+                            <ComboBoxItem Content="Simulación (sin coste, para pruebas)" Tag="simulation"/>
+                        </ComboBox>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Modelo"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="El modelo concreto (puedes escribir otro). Más capaz = mejor pero más caro. La lista cambia según el proveedor."/>
+                        <ComboBox x:Name="ModelBox" IsEditable="True" Padding="6,5"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Esfuerzo (calidad ⇄ velocidad/coste)"/>
+                        <ComboBox x:Name="EffortBox" Padding="6,5">
+                            <ComboBoxItem Content="low"/>
+                            <ComboBoxItem Content="medium"/>
+                            <ComboBoxItem Content="high"/>
+                            <ComboBoxItem Content="max"/>
+                        </ComboBox>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Clave de API"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Tu clave del proveedor (p. ej. 'sk-ant-...'). Se guarda CIFRADA en tu equipo, ligada a tu sesión de Windows; nunca en texto plano. Vacía = conservar la actual."/>
+                        <PasswordBox x:Name="ApiKeyBox" Padding="6,5"/>
+
+                        <Border Background="#FFF4E5" CornerRadius="6" Padding="10" Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" FontSize="12" Foreground="#8A5A00"
+                                           Text="⚠ Importante sobre costes"/>
+                                <TextBlock Style="{StaticResource Help}" Foreground="#8A5A00" Margin="0,2,0,0"
+                                           Text="'Claude Max' (~90 €+IVA/mes) cubre claude.ai y Claude Code, pero NO incluye la API. Esta app usa la API, que se factura APARTE por tokens. En 'Costes' y 'Diagnóstico' verás el gasto estimado."/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Pestaña: Triaje & local -->
+            <TabItem Header="⚡ Triaje &amp; local">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource CardTitle}" Text="Ahorro de coste (triaje + local)"/>
+                        <TextBlock Style="{StaticResource CardSubtitle}"
+                                   Text="Lo que hace que el gasto sea mínimo: filtrar antes de redactar y usar tu equipo para lo gratis."/>
+
+                        <Border Background="#E9F5EC" CornerRadius="6" Padding="10" Margin="0,4,0,0">
+                            <StackPanel>
+                                <CheckBox x:Name="TriageBox" FontWeight="SemiBold" FontSize="12" Foreground="#1E6B36"
+                                          Content="Ahorro con triaje (recomendado)"/>
+                                <TextBlock Style="{StaticResource Help}" Foreground="#1E6B36" Margin="0,2,0,0"
+                                           Text="Un modelo barato decide primero si el mensaje merece respuesta; solo entonces se usa el modelo potente. Reduce el gasto a la mitad o menos."/>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Proveedor del triaje"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Quién decide si un mensaje merece respuesta. 'Ollama (local)' = GRATIS pero requiere Ollama instalado. 'Claude Haiku' = barato y con mejor criterio."/>
+                        <ComboBox x:Name="TriageProviderBox" Padding="6,5">
+                            <ComboBoxItem Content="Mismo que la redacción" Tag=""/>
+                            <ComboBoxItem Content="Ollama (local, gratis)" Tag="ollama"/>
+                            <ComboBoxItem Content="Claude Haiku (barato, buen criterio)" Tag="claude"/>
+                            <ComboBoxItem Content="Gemini Flash" Tag="gemini"/>
+                            <ComboBoxItem Content="OpenAI mini" Tag="openai"/>
+                        </ComboBox>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Ollama — URL local"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Dónde escucha Ollama (LLM local). Por defecto 127.0.0.1:11434. Se usa para triaje local, embeddings (RAG) y reescritura de tono/resúmenes gratis."/>
+                        <TextBox x:Name="OllamaUrlBox"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Modelo de embeddings (RAG)"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Modelo local para búsqueda semántica y RAG. Por defecto 'nomic-embed-text' ('ollama pull nomic-embed-text')."/>
+                        <TextBox x:Name="EmbeddingBox"/>
+
+                        <CheckBox x:Name="RagBox" Content="RAG: inyectar solo el conocimiento relevante (menos tokens)"
+                                  Margin="0,12,0,0" FontWeight="SemiBold"/>
+                        <CheckBox x:Name="IndexConvBox" Content="Indexar conversaciones para búsqueda semántica"
+                                  Margin="0,6,0,0" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Pestaña: Perfil -->
+            <TabItem Header="👤 Perfil">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource CardTitle}" Text="Tu perfil (mejora las respuestas)"/>
+                        <TextBlock Style="{StaticResource CardSubtitle}"
+                                   Text="Le dice a la IA quién eres para que las sugerencias tengan sentido y no invente."/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Tu nombre"/>
+                        <TextBox x:Name="NameBox"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Tu rol / puesto"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Ejemplo: 'Ingeniero de datos especializado en Microsoft Fabric'."/>
+                        <TextBox x:Name="RoleBox"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Idioma de las respuestas"/>
+                        <ComboBox x:Name="LanguageBox" Padding="6,5">
+                            <ComboBoxItem Content="Español" Tag="es"/>
+                            <ComboBoxItem Content="English" Tag="en"/>
+                        </ComboBox>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Instrucciones extra (opcional)"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Cualquier preferencia: 'sé conciso', 'trátalos de usted', 'no uses emojis'..."/>
+                        <TextBox x:Name="ExtraBox" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Pestaña: Sistema -->
+            <TabItem Header="⚙ Sistema">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource CardTitle}" Text="Arranque y comportamiento"/>
+
+                        <Border Background="#EEF0FA" CornerRadius="6" Padding="10" Margin="0,4,0,10">
+                            <StackPanel>
+                                <CheckBox x:Name="StartupBox" Content="Arrancar Frida.ai al iniciar Windows"
+                                          FontWeight="SemiBold"/>
+                                <TextBlock Style="{StaticResource Help}" Margin="0,2,0,0"
+                                           Text="Se abrirá solo al encender el equipo y quedará en la bandeja."/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#E9F5EC" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <TextBlock Style="{StaticResource Help}" Foreground="#1E6B36"
+                                       Text="✔ Las sugerencias se generan SOLO cuando pulsas «Sugerir respuesta». Nada se analiza automáticamente, así no se gastan créditos sin querer. La lectura en segundo plano solo indexa para la búsqueda (gratis)."/>
+                        </Border>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Mensajes de contexto"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Cuántos mensajes recientes se envían al agente para entender la conversación."/>
+                        <TextBox x:Name="ContextBox"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Máximo de imágenes por análisis"/>
+                        <TextBox x:Name="ImagesBox"/>
+
+                        <Border Background="#EEF0FA" CornerRadius="6" Padding="10" Margin="0,14,0,0">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource Accent}"
+                                           Text="🎥 Videollamadas"/>
+                                <TextBlock Style="{StaticResource Help}" Margin="0,2,0,0"
+                                           Text="El Teams incrustado admite llamadas con cámara, micrófono y compartir pantalla. La app concede los permisos automáticamente; el micro/cámara/altavoz concretos se eligen DENTRO de Teams (Configuración → Dispositivos), como en Teams normal."/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Pestaña: Avanzado -->
+            <TabItem Header="🔧 Avanzado">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource CardTitle}" Text="Avanzado (opcional)"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Herramientas de sistema (Azure / Fabric CLI)"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Permite a Jarvis consultar (solo lectura) tu Azure y Fabric con tu sesión de 'az login'. Se rechaza cualquier comando que modifique algo."/>
+                        <CheckBox x:Name="AzBox" Content="Permitir consultas con 'az' (Azure CLI)" Margin="0,4"/>
+                        <CheckBox x:Name="FabBox" Content="Permitir consultas con 'fab' (Fabric CLI)" Margin="0,4"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Carpeta de conocimiento personal"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Carpeta con notas .md (proyectos, workspaces, glosario...). Jarvis las usa como contexto fiable (RAG). Vacío = carpeta por defecto en tu perfil."/>
+                        <TextBox x:Name="KnowledgeBox"/>
+
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Servidores MCP (JSON, avanzado)"/>
+                        <TextBlock Style="{StaticResource Help}"
+                                   Text="Pega el mismo JSON que usas en Claude Desktop/Cursor, formato estándar: {&quot;mcpServers&quot;: {&quot;nombre&quot;: {&quot;command&quot;: &quot;...&quot;, &quot;args&quot;: [...], &quot;env&quot;: {...}}}}. Para servidores HTTP usa &quot;url&quot; en vez de &quot;command&quot;. Sus herramientas quedan disponibles para la IA. Reinicia tras guardar."/>
+                        <TextBox x:Name="McpBox" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80"
+                                 FontFamily="Consolas" FontSize="12"/>
+                        <TextBlock x:Name="McpError" Foreground="#C0392B" FontSize="11" Margin="0,3,0,0"
+                                   TextWrapping="Wrap" Visibility="Collapsed"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Botones -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E3E3EC" BorderThickness="0,1,0,0" Padding="18,12">
+            <DockPanel>
+                <TextBlock x:Name="SaveStatus" VerticalAlignment="Center" Foreground="{StaticResource Muted}" FontSize="12"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancelar" Padding="16,7" Margin="0,0,8,0" Click="OnCancel"/>
+                    <Button Content="Guardar" Padding="18,7" Background="{StaticResource Accent}" Foreground="White"
+                            BorderThickness="0" FontWeight="SemiBold" Click="OnSave"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

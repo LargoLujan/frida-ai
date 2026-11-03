@@ -1,0 +1,451 @@
+<Window x:Class="TeamsJarvis.UI.EmbeddedTeamsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        Title="Frida.ai" Height="860" Width="1360"
+        MinHeight="520" MinWidth="760" Background="#F4F5FA"
+        WindowState="Maximized" Closing="OnClosing" StateChanged="OnWindowStateChanged">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="46" ResizeBorderThickness="6" CornerRadius="0"
+                            GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <!-- Glifos de ventana (Segoe MDL2 Assets) como recursos, para no meter caracteres crudos en el código. -->
+        <sys:String x:Key="GlyphMaximize">&#xE922;</sys:String>
+        <sys:String x:Key="GlyphRestore">&#xE923;</sys:String>
+
+        <SolidColorBrush x:Key="Accent" Color="#6264A7"/>
+        <SolidColorBrush x:Key="AccentDark" Color="#4A4C86"/>
+        <SolidColorBrush x:Key="Muted" Color="#6A6A75"/>
+        <SolidColorBrush x:Key="Ok" Color="#1E6B36"/>
+
+        <LinearGradientBrush x:Key="TopBar" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#5B5D9E" Offset="0"/>
+            <GradientStop Color="#6E70B8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Botón redondeado de la barra (con hover) -->
+        <Style x:Key="Tool" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#33FFFFFF"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="7" Padding="11,6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#55FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botón de acción (panel), con micro-interacción de escala al pasar el ratón -->
+        <Style x:Key="Action" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="8" Padding="10,9">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.03" Duration="0:0:0.12"/>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.03" Duration="0:0:0.12"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.0" Duration="0:0:0.12"/>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.0" Duration="0:0:0.12"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Botones de ventana (min/max/cerrar) -->
+        <Style x:Key="WinCtl" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#33FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="WinClose" TargetType="Button" BasedOn="{StaticResource WinCtl}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#E81123"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Ítem del menú de cuenta -->
+        <Style x:Key="MenuItemBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource ThemeText}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6" Padding="12,9">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource ThemeChip}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===================== BARRA SUPERIOR (título + acciones) ===================== -->
+        <Border Grid.Row="0" Background="{DynamicResource ThemeTopBar}" Padding="12,0">
+            <DockPanel Height="46">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <Image x:Name="BrandLogo" Width="24" Height="24" Margin="0,0,8,0" SnapsToDevicePixels="True"/>
+                    <TextBlock Text="Frida" Foreground="White" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text=".ai" Foreground="#C9CBF0" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Controles de ventana (min / max / cerrar) al estilo de la app -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="8,0,0,0">
+                    <Button Style="{StaticResource WinCtl}" Content="&#xE921;" FontFamily="Segoe MDL2 Assets"
+                            Click="OnMinimize" ToolTip="Minimizar"/>
+                    <Button x:Name="MaxRestoreBtn" Style="{StaticResource WinCtl}" Content="&#xE922;"
+                            FontFamily="Segoe MDL2 Assets" Click="OnMaxRestore" ToolTip="Maximizar/Restaurar"/>
+                    <Button Style="{StaticResource WinClose}" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets"
+                            Click="OnCloseWindow" ToolTip="Cerrar (a la bandeja)"/>
+                </StackPanel>
+
+                <!-- Cuenta (menú desplegable) -->
+                <Button DockPanel.Dock="Right" x:Name="AccountBtn" Style="{StaticResource Tool}" Click="OnAccountMenu"
+                        Margin="10,8,4,8" ToolTip="Cuenta, configuración, costes y cerrar sesión">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="24" Height="24" CornerRadius="12" Background="White">
+                            <TextBlock x:Name="AccountInitial" Text="J" Foreground="{StaticResource Accent}"
+                                       FontWeight="Bold" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="▾" Foreground="White" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Accesos rápidos -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <ToggleButton x:Name="AutoToggle" Content="👁 Auto-leer" Padding="10,5" Margin="3,0"
+                                  IsChecked="True" Click="OnToggleAuto" Foreground="White" Background="#33FFFFFF"
+                                  ToolTip="Lee y guarda los mensajes para la búsqueda (gratis). NO gasta créditos: las sugerencias, solo con el botón."/>
+                    <Button Content="☀ Hoy" Style="{StaticResource Tool}" Click="OnAttention"
+                            ToolTip="Requiere tu atención hoy: menciones, preguntas y recordatorios"/>
+                    <Button Content="🔎 Buscar" Style="{StaticResource Tool}" Click="OnSearch"/>
+                    <Button Content="📝 Notas" Style="{StaticResource Tool}" Click="OnNotes"/>
+                    <Button Content="🔌 Reconectar" Style="{StaticResource Tool}" Click="OnReconnectTeams"
+                            ToolTip="Si Teams dice 'Vuelva a conectarse': limpia la caché sin cerrar tu sesión y recarga"/>
+                    <Button Content="⟳" Style="{StaticResource Tool}" Click="OnReload"/>
+                    <CheckBox x:Name="LoadHistoryBox" Content="Histórico" Foreground="White" IsChecked="True"
+                              VerticalAlignment="Center" Margin="8,0,4,0"/>
+                </StackPanel>
+
+                <TextBlock x:Name="Status" Foreground="#E7E7F5" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" Margin="10,0"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Popup del menú de cuenta -->
+        <Popup x:Name="AccountPopup" PlacementTarget="{Binding ElementName=AccountBtn}" Placement="Bottom"
+               StaysOpen="False" AllowsTransparency="True" HorizontalOffset="-150" VerticalOffset="6">
+            <Border Background="{DynamicResource ThemeSurface}" CornerRadius="10" Padding="6" Width="286"
+                    BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1"
+                    TextElement.Foreground="{DynamicResource ThemeText}">
+                <Border.Effect><DropShadowEffect Color="#40000000" BlurRadius="18" ShadowDepth="3" Direction="270"/></Border.Effect>
+                <StackPanel>
+                    <StackPanel Margin="12,10,12,6">
+                        <TextBlock x:Name="AccountName" Text="Tu cuenta" FontWeight="Bold" FontSize="14"/>
+                        <TextBlock x:Name="AccountRole" Text="" FontSize="11.5" Foreground="{DynamicResource ThemeMuted}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Separator Margin="6,2"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Content="⚙  Configuración" Click="OnSettings"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Content="💶  Costes de API" Click="OnCosts"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Content="🩺  Diagnóstico" Click="OnDiagnostics"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Content="🧠  Memoria del chat actual" Click="OnMemory"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Content="🕘  Historial del chat actual" Click="OnHistory"/>
+                    <Button x:Name="ThemeMenuItem" Style="{StaticResource MenuItemBtn}" Content="🌙  Modo oscuro" Click="OnToggleTheme"/>
+                    <Button x:Name="BarkMenuItem" Style="{StaticResource MenuItemBtn}" Content="🔊  Ladridos: desactivados" Click="OnToggleBark"/>
+                    <Separator Margin="6,2"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Content="🔄  Reconstruir memoria (local, gratis)" Click="OnRebuildMemory"/>
+                    <Separator Margin="6,2"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Foreground="#B03A2E"
+                            Content="🚪  Cerrar sesión de Teams" Click="OnSignOutTeams"/>
+                    <Button Style="{StaticResource MenuItemBtn}" Foreground="#B03A2E"
+                            Content="🚪  Cerrar sesión de Azure / Fabric (az logout)" Click="OnSignOutAzure"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+
+        <!-- ===================== CUERPO ===================== -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="380" MinWidth="300"/>
+            </Grid.ColumnDefinitions>
+
+            <wv2:WebView2 x:Name="Web" Grid.Column="0"/>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#E2E2EE"/>
+
+            <!-- Panel Jarvis -->
+            <Grid Grid.Column="2" Background="{DynamicResource ThemeSurfaceAlt}"
+                  TextElement.Foreground="{DynamicResource ThemeText}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Cabecera + agente en uso -->
+                <Border Grid.Row="0" Background="{DynamicResource ThemeHeader}" Padding="14,12"
+                        BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="0,0,0,1">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse x:Name="AgentPulse" Width="9" Height="9" Fill="{StaticResource Accent}" Opacity="0.35" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="AgentNameText" Text="" FontSize="11.5" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Respuesta sugerida" FontWeight="Bold" FontSize="15" Foreground="{StaticResource Accent}"/>
+                            <TextBlock Text="La app nunca envía: copias tú y pegas en Teams." FontSize="10.5" Foreground="{DynamicResource ThemeMuted}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Mascota Frida (schnauzer) SIEMPRE visible: habla desde un bocadillo y tiene vida propia -->
+                <Border Grid.Row="1" x:Name="ProgressPanel" Background="Transparent" Padding="10,8" Visibility="Visible">
+                    <DockPanel>
+                        <Canvas x:Name="Mascot" Width="72" Height="72" DockPanel.Dock="Left" VerticalAlignment="Center">
+                            <Canvas.RenderTransform>
+                                <TransformGroup>
+                                    <TranslateTransform x:Name="MascotBob" Y="0"/>
+                                    <RotateTransform x:Name="MascotSpin" CenterX="36" CenterY="40"/>
+                                </TransformGroup>
+                            </Canvas.RenderTransform>
+                            <Polygon Points="14,12 32,16 22,29" Fill="#41445A"/>
+                            <Polygon Points="58,12 40,16 50,29" Fill="#41445A"/>
+                            <Ellipse Canvas.Left="15" Canvas.Top="14" Width="42" Height="46" Fill="#C9CCDA"/>
+                            <Polygon Points="24,44 48,44 55,64 17,64" Fill="#ECEDF4"/>
+                            <Ellipse x:Name="MascotMouth" Canvas.Left="31" Canvas.Top="45" Width="10" Height="8" Fill="#25252C"
+                                     RenderTransformOrigin="0.5,0">
+                                <Ellipse.RenderTransform><ScaleTransform x:Name="MascotMouthScale" ScaleY="0.25"/></Ellipse.RenderTransform>
+                            </Ellipse>
+                            <Ellipse Canvas.Left="30" Canvas.Top="35" Width="12" Height="9" Fill="#25252C"/>
+                            <Ellipse Canvas.Left="20" Canvas.Top="24" Width="13" Height="6" Fill="#41445A"/>
+                            <Ellipse Canvas.Left="39" Canvas.Top="24" Width="13" Height="6" Fill="#41445A"/>
+                            <Ellipse Canvas.Left="25" Canvas.Top="30" Width="5" Height="6" Fill="#25252C" RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform><ScaleTransform x:Name="MascotEyeLScale"/></Ellipse.RenderTransform>
+                            </Ellipse>
+                            <Ellipse Canvas.Left="42" Canvas.Top="30" Width="5" Height="6" Fill="#25252C" RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform><ScaleTransform x:Name="MascotEyeRScale"/></Ellipse.RenderTransform>
+                            </Ellipse>
+                            <!-- Patita con banderín (triaje): sube con rebote, verde=sí / rojo=no -->
+                            <Canvas x:Name="MascotPaw" Canvas.Left="47" Canvas.Top="26" Width="34" Height="46">
+                                <Canvas.RenderTransform><TranslateTransform x:Name="MascotPawShift" Y="46"/></Canvas.RenderTransform>
+                                <Rectangle Canvas.Left="7" Canvas.Top="0" Width="2.5" Height="30" Fill="#6B5B3E"/>
+                                <Polygon x:Name="MascotFlag" Points="9,1 27,6 9,12" Fill="#2F9E44">
+                                    <Polygon.RenderTransform><RotateTransform x:Name="MascotFlagWave" CenterX="9" CenterY="6"/></Polygon.RenderTransform>
+                                </Polygon>
+                                <Ellipse Canvas.Left="0" Canvas.Top="26" Width="18" Height="16" Fill="#C9CCDA" Stroke="#B4B7C6" StrokeThickness="0.5"/>
+                                <Ellipse Canvas.Left="2" Canvas.Top="37" Width="4" Height="5" Fill="#41445A"/>
+                                <Ellipse Canvas.Left="7" Canvas.Top="38" Width="4" Height="5" Fill="#41445A"/>
+                                <Ellipse Canvas.Left="12" Canvas.Top="37" Width="4" Height="5" Fill="#41445A"/>
+                            </Canvas>
+                            <!-- Hueso (idle): sube hacia la boca y el perro lo mordisquea -->
+                            <Canvas x:Name="MascotBone" Canvas.Left="27" Canvas.Top="52" Width="24" Height="16" Opacity="0">
+                                <Canvas.RenderTransform><TranslateTransform x:Name="MascotBoneShift" Y="14"/></Canvas.RenderTransform>
+                                <Ellipse Canvas.Left="0" Canvas.Top="1" Width="7" Height="6" Fill="#EFEAD9" Stroke="#C9BE9C" StrokeThickness="0.6"/>
+                                <Ellipse Canvas.Left="0" Canvas.Top="6" Width="7" Height="6" Fill="#EFEAD9" Stroke="#C9BE9C" StrokeThickness="0.6"/>
+                                <Ellipse Canvas.Left="16" Canvas.Top="1" Width="7" Height="6" Fill="#EFEAD9" Stroke="#C9BE9C" StrokeThickness="0.6"/>
+                                <Ellipse Canvas.Left="16" Canvas.Top="6" Width="7" Height="6" Fill="#EFEAD9" Stroke="#C9BE9C" StrokeThickness="0.6"/>
+                                <Rectangle Canvas.Left="4" Canvas.Top="4" Width="15" Height="6" RadiusX="3" RadiusY="3" Fill="#EFEAD9" Stroke="#C9BE9C" StrokeThickness="0.6"/>
+                            </Canvas>
+                        </Canvas>
+                        <Grid x:Name="MascotBubble" VerticalAlignment="Center" Margin="4,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="9"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Polygon Grid.Column="0" Points="9,16 0,23 9,30" Fill="{DynamicResource ThemeSurface}"
+                                     Stroke="{DynamicResource ThemeBorder}" StrokeThickness="1" VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" Background="{DynamicResource ThemeSurface}" BorderBrush="{DynamicResource ThemeBorder}"
+                                    BorderThickness="1" CornerRadius="10" Padding="12,8">
+                                <StackPanel>
+                                    <TextBlock x:Name="ProgressText" TextWrapping="Wrap" FontSize="12"
+                                               Foreground="{DynamicResource ThemeText}" Text="…"/>
+                                    <ProgressBar x:Name="MascotBar" IsIndeterminate="True" Height="3" BorderThickness="0"
+                                                 Margin="0,6,0,0" Foreground="{StaticResource Accent}" Background="{DynamicResource ThemeChip}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </DockPanel>
+                </Border>
+
+                <!-- Tarjeta de sugerencia (plegable, con animación de entrada) -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="12,12,12,0">
+                    <Border x:Name="SugCard" Background="{DynamicResource ThemeSurface}" CornerRadius="10"
+                            BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" Padding="0"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <TranslateTransform x:Name="SugCardShift" Y="0"/>
+                        </Border.RenderTransform>
+                        <Border.Effect><DropShadowEffect Color="#22000000" BlurRadius="10" ShadowDepth="1" Direction="270"/></Border.Effect>
+                        <StackPanel>
+                            <!-- Cabecera de la tarjeta: nombre del chat/grupo + confianza + flecha -->
+                            <Button x:Name="CardToggle" Click="OnToggleCard" Cursor="Hand" BorderThickness="0" Background="Transparent">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="10" Padding="12,10">
+                                            <ContentPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <DockPanel>
+                                    <TextBlock x:Name="CardChevron" DockPanel.Dock="Right" Text="▾" FontSize="14"
+                                               Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                    <Border x:Name="ConfChip" DockPanel.Dock="Right" Background="#E8E8F5" CornerRadius="4"
+                                            Padding="6,2" VerticalAlignment="Center" Visibility="Collapsed">
+                                        <TextBlock x:Name="ConfText" FontSize="10.5" Foreground="{StaticResource Accent}"/>
+                                    </Border>
+                                    <StackPanel>
+                                        <TextBlock x:Name="CardChatName" Text="Abre un chat y pulsa «Sugerir respuesta»"
+                                                   FontWeight="SemiBold" FontSize="13.5" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock x:Name="CardSubtitle" Text="" FontSize="11" Foreground="{StaticResource Muted}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Button>
+
+                            <!-- Cuerpo plegable -->
+                            <StackPanel x:Name="SugBody" Margin="12,0,12,12">
+                                <Border x:Name="RecipientChip" Background="#DCE0F5" CornerRadius="4" Padding="7,3" Margin="0,0,0,6"
+                                        HorizontalAlignment="Left" Visibility="Collapsed">
+                                    <TextBlock x:Name="RecipientText" FontSize="11.5" Foreground="{StaticResource Accent}"
+                                               FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                </Border>
+                                <Border x:Name="MentionBanner" Background="#FDECEA" CornerRadius="4" Padding="8,5" Margin="0,0,0,6" Visibility="Collapsed">
+                                    <TextBlock Text="Te mencionan en este mensaje" Foreground="#B03A2E" FontWeight="SemiBold" FontSize="12"/>
+                                </Border>
+                                <TextBox x:Name="SugText" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="170"
+                                         VerticalScrollBarVisibility="Auto" FontSize="13.5" Padding="10"
+                                         Background="{DynamicResource ThemeInput}" BorderBrush="{DynamicResource ThemeBorder}"
+                                         Foreground="{DynamicResource ThemeText}"/>
+                                <Expander Header="Fuentes" FontSize="11" Margin="0,8,0,0" Foreground="{DynamicResource ThemeText}">
+                                    <TextBlock x:Name="SugSources" TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource ThemeMuted}" Margin="4"/>
+                                </Expander>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+
+                <!-- Recientes y gasto: botones que responde el asistente en su bocadillo -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="12,10,12,0">
+                    <Button Content="🕘 Recientes" Padding="11,6" Margin="0,0,8,0" BorderThickness="0" Cursor="Hand"
+                            Background="{DynamicResource ThemeChip}" Foreground="{DynamicResource ThemeText}" Click="OnRecientes"/>
+                    <Button Content="💶 Gasto de API" Padding="11,6" BorderThickness="0" Cursor="Hand"
+                            Background="{DynamicResource ThemeChip}" Foreground="{DynamicResource ThemeText}" Click="OnGasto"/>
+                </StackPanel>
+
+                <!-- Acciones -->
+                <StackPanel Grid.Row="4" Margin="12,10,12,12">
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock DockPanel.Dock="Left" Text="Tono:" VerticalAlignment="Center"
+                                   FontSize="11.5" Foreground="{DynamicResource ThemeMuted}" Margin="0,0,6,0"/>
+                        <Button DockPanel.Dock="Right" x:Name="RewriteBtn" Content="✍ Reescribir (local · gratis)"
+                                Padding="8,4" Click="OnRewriteTone" BorderThickness="0"
+                                Background="{DynamicResource ThemeChip}" Foreground="{DynamicResource ThemeText}"
+                                ToolTip="Reescribe la sugerencia en el tono elegido usando el modelo local (sin coste)"/>
+                        <ComboBox x:Name="ToneBox" SelectedIndex="0" FontSize="12" Margin="0,0,6,0">
+                            <ComboBoxItem Content="Cordial" Tag="cordial"/>
+                            <ComboBoxItem Content="Formal" Tag="formal"/>
+                            <ComboBoxItem Content="Breve" Tag="breve"/>
+                            <ComboBoxItem Content="Técnico" Tag="tecnico"/>
+                        </ComboBox>
+                    </DockPanel>
+                    <UniformGrid Columns="2">
+                        <Button Content="✨ Sugerir respuesta" Style="{StaticResource Action}" Margin="0,0,4,0"
+                                Background="{StaticResource Ok}" Click="OnAnalyze"/>
+                        <Button Content="📋 Copiar" Style="{StaticResource Action}" Margin="4,0,0,0"
+                                Background="{StaticResource Accent}" Click="OnCopy"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

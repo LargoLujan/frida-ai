@@ -1,0 +1,17 @@
+<Window x:Class="TeamsJarvis.UI.DiagnosticsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Diagnóstico" Height="380" Width="560"
+        WindowStartupLocation="CenterOwner" Background="#F5F5F5">
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Comprobando conexiones..." x:Name="Header"
+                   FontWeight="SemiBold" Margin="0,0,0,8"/>
+        <TextBox Grid.Row="1" x:Name="Results" IsReadOnly="True" TextWrapping="Wrap"
+                 FontFamily="Segoe UI" FontSize="13" Padding="8"
+                 VerticalScrollBarVisibility="Auto"/>
+    </Grid>
+</Window>

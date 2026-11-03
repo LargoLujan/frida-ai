@@ -1,0 +1,25 @@
+<Application x:Class="TeamsJarvis.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Marca -->
+        <SolidColorBrush x:Key="Accent" Color="#6264A7"/>
+        <SolidColorBrush x:Key="AccentSoft" Color="#8A8CD9"/>
+
+        <!-- Brochas de TEMA (valores por defecto = claro). ThemeManager las cambia en caliente.
+             Se referencian con DynamicResource para que el modo oscuro se aplique al instante. -->
+        <SolidColorBrush x:Key="ThemeTopBar" Color="#5B5D9E"/>
+        <SolidColorBrush x:Key="ThemeBg" Color="#F4F5FA"/>
+        <SolidColorBrush x:Key="ThemeSurface" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ThemeSurfaceAlt" Color="#F7F8FC"/>
+        <SolidColorBrush x:Key="ThemeHeader" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="ThemeText" Color="#22232A"/>
+        <SolidColorBrush x:Key="ThemeMuted" Color="#6A6A75"/>
+        <SolidColorBrush x:Key="ThemeBorder" Color="#E6E6F0"/>
+        <SolidColorBrush x:Key="ThemeInput" Color="#FBFBFE"/>
+        <SolidColorBrush x:Key="ThemeChip" Color="#EEF0FA"/>
+    </Application.Resources>
+</Application>

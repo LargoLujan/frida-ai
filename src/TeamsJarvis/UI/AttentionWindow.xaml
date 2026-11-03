@@ -1,0 +1,83 @@
+<Window x:Class="TeamsJarvis.UI.AttentionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Requiere tu atención hoy" Height="680" Width="720"
+        MinHeight="440" MinWidth="520"
+        WindowStartupLocation="CenterOwner" Background="#F3F3F7">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Accent" Color="#6264A7"/>
+        <Style x:Key="Section" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="2,14,0,6"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="9,3"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
+        <DataTemplate x:Key="ItemTemplate">
+            <Border Background="White" CornerRadius="6" BorderBrush="#E3E3EC" BorderThickness="1" Margin="0,0,0,6" Padding="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ChatName}" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource Accent}"/>
+                            <TextBlock Text="{Binding WhenText}" FontSize="11" Foreground="#999" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" FontSize="13" Margin="0,3,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="📋 Copiar" Click="OnCopy" Tag="{Binding RefId}"
+                                Visibility="{Binding CopyVisibility}"
+                                ToolTip="Copia la respuesta sugerida para pegarla a mano en Teams"/>
+                        <Button Content="⏰ Recordatorio" Click="OnMakeReminder" Tag="{Binding RefId}"
+                                Visibility="{Binding ReminderVisibility}"/>
+                        <Button Content="✓ Hecho" Click="OnDone" Tag="{Binding RefId}"
+                                Visibility="{Binding DoneVisibility}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel Margin="12">
+        <!-- Cabecera -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="HeaderText" Grid.Column="0" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="🧠 Resumen del día (local · gratis)" Click="OnSummarize"
+                        Background="{StaticResource Accent}" Foreground="White" BorderThickness="0" Padding="12,6"/>
+                <Button Content="🔄" Click="OnRefresh" Padding="10,6" ToolTip="Actualizar"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Resumen local (oculto hasta generarse) -->
+        <Border x:Name="SummaryBox" DockPanel.Dock="Top" Background="#EEF0FA" CornerRadius="6"
+                Padding="12" Margin="0,0,0,8" Visibility="Collapsed">
+            <TextBlock x:Name="SummaryText" TextWrapping="Wrap" FontSize="13"/>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock x:Name="MentionHeader" Style="{StaticResource Section}" Text="🔔 Te mencionan"/>
+                <ItemsControl x:Name="MentionsList" ItemTemplate="{StaticResource ItemTemplate}"/>
+                <TextBlock x:Name="MentionEmpty" Text="Sin menciones hoy." Foreground="#999" Margin="2,0,0,0"/>
+
+                <TextBlock x:Name="QuestionHeader" Style="{StaticResource Section}" Text="❓ Preguntas pendientes"/>
+                <ItemsControl x:Name="QuestionsList" ItemTemplate="{StaticResource ItemTemplate}"/>
+                <TextBlock x:Name="QuestionEmpty" Text="Sin preguntas pendientes hoy." Foreground="#999" Margin="2,0,0,0"/>
+
+                <TextBlock x:Name="ReminderHeader" Style="{StaticResource Section}" Text="⏰ Recordatorios de hoy"/>
+                <ItemsControl x:Name="RemindersList" ItemTemplate="{StaticResource ItemTemplate}"/>
+                <TextBlock x:Name="ReminderEmpty" Text="Sin recordatorios para hoy." Foreground="#999" Margin="2,0,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
