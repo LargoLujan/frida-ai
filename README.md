@@ -18,7 +18,7 @@
 
 Frida.ai is a Windows desktop app that **embeds Microsoft Teams** and adds an assistant panel next to it. It reads the chat you have open, builds context from the conversation, your knowledge folder and the conversation's memory, and, **when you press the button**, asks an AI agent to investigate with read-only tools (Microsoft Fabric, Azure CLI, downloaded attachments) and any MCP servers you configure, and to propose a reply that cites where each fact came from. You review it, copy it and paste it into Teams yourself. It is an open-source personal project at version 1.0.0; the user interface, prompts and installer are in Spanish. Contributions are welcome.
 
-> **Naming:** the repository and the internal identifiers (namespace, `TeamsJarvis.exe`, the `%LOCALAPPDATA%\TeamsJarvis` data folder) keep the original name *TeamsJarvis* so existing installations and their encrypted data keep working; the product is branded **Frida.ai** everywhere in the UI. The logo is a schnauzer.
+> **Naming:** the product is branded **Frida.ai** everywhere in the UI and this repository is `frida-ai`. The internal identifiers (solution, namespace, `TeamsJarvis.exe`, the `%LOCALAPPDATA%\TeamsJarvis` data folder) keep the original name *TeamsJarvis* so existing installations and their encrypted data keep working. The logo is a schnauzer.
 
 ## Table of Contents
 
@@ -176,7 +176,7 @@ Authentication (`GraphAuthService`) has two modes: `azcli` reuses your Azure CLI
 ## Project Structure
 
 ```text
-TeamsJarvis/
+frida-ai/
 ├── TeamsJarvis.slnx                  # Solution: app and test projects
 ├── src/TeamsJarvis/
 │   ├── TeamsJarvis.csproj            # WPF app (.NET 10), package references, Frida.ai metadata
@@ -243,8 +243,8 @@ Key components in `src/TeamsJarvis`:
 ### Build
 
 ```powershell
-git clone https://github.com/LargoLujan/TeamsJarvis.git
-cd TeamsJarvis
+git clone https://github.com/LargoLujan/frida-ai.git
+cd frida-ai
 dotnet build src/TeamsJarvis
 ```
 
