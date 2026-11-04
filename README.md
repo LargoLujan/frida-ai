@@ -14,6 +14,12 @@
 ![MCP](https://img.shields.io/badge/MCP-client-1F1F1F)
 ![xUnit](https://img.shields.io/badge/tests-xUnit-5E1F87)
 
+<br>
+
+<img src="docs/media/frida-ai-demo.gif" alt="Frida.ai demo: fictional chat, reading the conversation, suggested reply with sources, settings and API costs" width="900">
+
+<sub>Simulation mode with a fictional demo chat; no real Teams account or AI provider was used. The interface is in Spanish.</sub>
+
 </div>
 
 Frida.ai is a Windows desktop app that **embeds Microsoft Teams** and adds an assistant panel next to it. It reads the chat you have open, builds context from the conversation, your knowledge folder and the conversation's memory, and, **when you press the button**, asks an AI agent to investigate with read-only tools (Microsoft Fabric, Azure CLI, downloaded attachments) and any MCP servers you configure, and to propose a reply that cites where each fact came from. You review it, copy it and paste it into Teams yourself. It is an open-source personal project at version 1.0.0; the user interface, prompts and installer are in Spanish. Contributions are welcome.
