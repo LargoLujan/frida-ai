@@ -292,6 +292,14 @@
                 <Border Grid.Row="1" x:Name="ProgressPanel" Background="Transparent" Padding="10,8" Visibility="Visible">
                     <DockPanel>
                         <Canvas x:Name="Mascot" Width="72" Height="72" DockPanel.Dock="Left" VerticalAlignment="Center">
+                            <!-- Recorte: la patita "bajada" se esconde desplazándola por debajo de la mascota (Y=46);
+                                 sin recorte el banderín asomaba bajo el perro y tapaba la tarjeta. 82 de ancho (y no
+                                 ClipToBounds) para no cortar la punta del banderín levantado, que llega a x≈74; 70 de
+                                 alto para que el mástil bajado (empieza en y=72) no deje un píxel por el antialiasing.
+                                 Con la patita levantada, lo más bajo (los dedos) llega a y≈69. -->
+                            <Canvas.Clip>
+                                <RectangleGeometry Rect="0,0,82,70"/>
+                            </Canvas.Clip>
                             <Canvas.RenderTransform>
                                 <TransformGroup>
                                     <TranslateTransform x:Name="MascotBob" Y="0"/>

@@ -38,7 +38,7 @@ public partial class EmbeddedTeamsWindow : Window
     private string? _currentChatId;
     private string _currentChatName = "";
     private bool _reallyExit;
-    private readonly Progress<string> _progress;
+    private readonly IProgress<string> _progress;
 
     public EmbeddedTeamsWindow(AnalysisPipeline pipeline, SuggestionStore store, ConversationGraphStore graph,
         KnowledgeIndexer knowledge, NotesStore notes, AttentionService attention, LocalLlm local,
@@ -73,7 +73,9 @@ public partial class EmbeddedTeamsWindow : Window
         });
 
         // Progreso en vivo del análisis: cada mensaje sale del bocadillo y la mascota "habla".
-        _progress = new Progress<string>(text => MascotSay(text, keepTalking: true));
+        // Síncrono (no Progress<T>, que encola): así llega en orden con los demás avisos del análisis y
+        // el último "Lo analizo…" no pisa la respuesta ya pintada.
+        _progress = new SynchronousProgress<string>(text => MascotSay(text, keepTalking: true));
         _pipeline.AnalysisRunningChanged += (_, running) => Dispatcher.Invoke(() =>
         {
             if (running) MascotSay("Déjame mirar la conversación…", keepTalking: true);
