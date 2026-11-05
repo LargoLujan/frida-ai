@@ -4,6 +4,7 @@
 
 **An AI reply assistant for Microsoft Teams that reads your conversations, checks the facts with read-only tools and suggests a grounded reply, without ever sending anything for you.**
 
+[![CI](https://github.com/LargoLujan/frida-ai/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LargoLujan/frida-ai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
 ![WPF](https://img.shields.io/badge/UI-WPF-5C2D91)
@@ -444,6 +445,8 @@ Calls go to the provider you configure (Anthropic, OpenAI or Google); what happe
 ```powershell
 dotnet test tests/TeamsJarvis.Tests
 ```
+
+The [CI workflow](.github/workflows/ci.yml) runs the same build and tests on Windows for every push to `main` and every pull request.
 
 The xUnit project targets `net10.0-windows10.0.17763.0` so it can reference the WPF app, and contains 119 test cases (72 `[Fact]` tests and 47 `[InlineData]` cases, counted from the test sources). They cover:
 
