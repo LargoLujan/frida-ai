@@ -1,0 +1,32 @@
+# Dependabot version updates for Frida.ai.
+# The repository does not use NuGet central package management (no Directory.Packages.props),
+# so each project directory with a .csproj is listed explicitly.
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directories:
+      - "/src/TeamsJarvis"
+      - "/tests/TeamsJarvis.Tests"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    # Stay on the current .NET major version; major upgrades are done by hand.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      nuget-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
