@@ -39,6 +39,7 @@ Frida.ai is a Windows desktop app that **embeds Microsoft Teams** and adds an as
 - [Configuration](#configuration)
 - [Cost Control](#cost-control)
 - [Security and Privacy](#security-and-privacy)
+- [Known Limitations](#known-limitations)
 - [Testing](#testing)
 - [License](#license)
 - [Author](#author)
@@ -440,6 +441,26 @@ Calls go to the provider you configure (Anthropic, OpenAI or Google); what happe
 - **Media permissions:** the embedded browser grants the permission requests of the pages it loads (camera, microphone, screen sharing, notifications) so that Teams calls work; the actual devices are chosen inside Teams.
 - **Sign-out options:** clear the embedded Teams session data, or run `az logout`, from the account menu.
 
+## Known Limitations
+
+These follow from the design and the current code. Most are explained in more detail in the sections above.
+
+- **Windows only.** The app is built on WPF and WebView2, targets `net10.0-windows10.0.17763.0` and is published for `win-x64`, so it needs Windows 10 (version 1809 or later) or Windows 11 on x64, with the Microsoft Edge WebView2 Runtime installed.
+- **Spanish interface.** The user interface, prompts and installer are in Spanish. The reply language can be `es` or `en` (`Profile.Language`).
+- **Only what Teams web renders is read.** In embedded mode the reader script sees the chat that is open: up to the last 200 rendered messages, plus older ones only when **Histórico** scrolls them into view (`HistoryRounds`, 3 rounds by default). Images reach the agent only as alt text; their pixels are sent to vision models only in Graph mode.
+- **The reader depends on the Teams web markup.** Messages, authors, timestamps and the chat title are located with CSS selectors in `Resources/teamsReader.js`. If the Teams web client changes that markup, reading can stop working until the selectors are updated.
+- **Some tools need Graph mode.** SharePoint and OneDrive search and file reading, and access to other chats, are available only in Graph mode; in embedded mode those tools are hidden from the agent.
+- **Graph mode is not fully wired.** The chat-selection window exists in the source but is not opened from the current main window, so the UI offers no way to choose which chats the background monitor watches. If your Azure CLI token lacks `Chat.Read`, listing chats fails with a 403 and you need your own app registration.
+- **No tools with the local provider.** The `ollama` provider drafts with a single call, without tools or images, so it cannot check facts in Fabric, Azure, attachments or MCP servers. The `simulation` provider does not execute tools at all.
+- **One stored API key.** Only the key for `Provider` is stored. If triage runs on a different cloud provider, its key must already be set in that provider's environment variable.
+- **Local features need Ollama.** Embeddings are always computed through the Ollama endpoint. Without Ollama, RAG falls back to the full knowledge folder, and semantic search, tone rewriting, summaries and local memory rebuilds are unavailable.
+- **No PDF support.** Attachments and SharePoint or OneDrive files can be read only in text formats, docx and xlsx.
+- **Not everything is encrypted.** Chat names, author names, timestamps, note titles, embedding vectors, the usage log, downloaded attachments and the log files are stored in clear (see [What is stored and where](#what-is-stored-and-where)). Encrypted data can be decrypted only by the same Windows user.
+- **MCP tools are not filtered.** Unlike the native tools, MCP tools are offered to the agent as each server exposes them, so whether they are read-only depends on the server.
+- **Settings apply after a restart.** The app offers to restart when you save.
+- **Costs are estimates.** The cost panel prices the recorded token usage with the table in `CostEstimator` (unknown models at the Opus rate); it does not read your provider's bill. The figures in [COST-OPTIMIZATION.md](COST-OPTIMIZATION.md) come from an offline simulation.
+- **No trusted code signature.** The repository includes a self-signed signing script. A self-signed certificate removes the "unknown publisher" warning only on machines that trust it and does not remove SmartScreen warnings on other computers; see [SIGNING.md](SIGNING.md).
+
 ## Testing
 
 ```powershell
@@ -448,7 +469,7 @@ dotnet test tests/TeamsJarvis.Tests
 
 The [CI workflow](.github/workflows/ci.yml) runs the same build and tests on Windows for every push to `main` and every pull request.
 
-The xUnit project targets `net10.0-windows10.0.17763.0` so it can reference the WPF app, and contains 119 test cases (72 `[Fact]` tests and 47 `[InlineData]` cases, counted from the test sources). They cover:
+The xUnit project targets `net10.0-windows10.0.17763.0` so it can reference the WPF app, and contains 123 test cases (76 `[Fact]` tests and 47 `[InlineData]` cases, counted from the test sources). They cover:
 
 | Test file | Area |
 |---|---|
@@ -463,6 +484,7 @@ The xUnit project targets `net10.0-windows10.0.17763.0` so it can reference the 
 | `MemoryDocTests` | Memory sheet sections |
 | `IcsExporterTests` | iCalendar output |
 | `AttentionServiceTests` | Today panel classification |
+| `SynchronousProgressTests` | Analysis progress reaching the UI in order, so the last progress report does not overwrite the result |
 | `StoreIntegrationTests` | SQLite stores on a temporary database (`AppPaths.OverrideDataDir`), including encryption at rest |
 
 ## License
